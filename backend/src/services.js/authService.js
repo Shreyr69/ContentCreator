@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import OTP from "../models/otp.js";
 import { generateOTP } from "../utils/generateOtp.js";
+import { sendOtpEmail } from "../sendEmail.js";
 import jwt from "jsonwebtoken";
 export const initiateSignupService = async (email) => {
   const existingUser = await User.findOne({ email });
@@ -19,8 +20,13 @@ export const initiateSignupService = async (email) => {
     expiresAt: new Date(Date.now() + 5 * 60 * 1000)
   });
 
+  try {
+    await sendOtpEmail(email, otp);
+  } catch (error) {
+    console.error("Failed to send email:", error.message);
+  }
+
   return {
-    otp,
     expiresIn: "5 minutes"
   };
 };
