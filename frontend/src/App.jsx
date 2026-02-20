@@ -1,20 +1,35 @@
 import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import ThemeProvider from './components/ThemeProvider'
-import Header from './components/Header'
-import Content from './components/Content'
-import Footer from './components/Footer'
-
+import AuthProvider from './contexts/AuthProvider'
+import ProtectedRoute from './components/ProtectedRoute'
+import Home from './pages/Home'
+import Login from './components/auth/Login'
+import Signup from './components/auth/Signup'
+import Dashboard from './pages/Dashboard'
 
 function App() {
   return (
-    
-    <ThemeProvider>
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <Header />
-        <Content />
-        <Footer />
-      </div>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   )
 }
 
