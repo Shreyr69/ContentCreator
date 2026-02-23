@@ -34,6 +34,10 @@ function Login() {
       const response = await loginUser({ email: formData.email, password: formData.password })
       
       if (response.success) {
+        // Store token in localStorage for API requests and Socket.IO
+        if (response.token) {
+          localStorage.setItem('token', response.token)
+        }
         login(response.user)
         successToast('Login successful!')
         navigate('/dashboard')

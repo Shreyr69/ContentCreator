@@ -69,6 +69,18 @@ function Navbar() {
                   Create Asset
                 </Link>
                 <Link
+                  to="/chat"
+                  className={`px-3 py-2 rounded-lg transition-colors ${
+                    isActive('/chat')
+                      ? 'bg-blue-600 text-white'
+                      : isDark
+                      ? 'text-gray-300 hover:bg-gray-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  Chat
+                </Link>
+                <Link
                   to="/profile"
                   className={`px-3 py-2 rounded-lg transition-colors ${
                     isActive('/profile')

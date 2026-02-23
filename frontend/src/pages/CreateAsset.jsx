@@ -29,14 +29,14 @@ function CreateAsset() {
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      // Validate file type
+      
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'video/mp4', 'video/webm']
       if (!validTypes.includes(file.type)) {
         errorToast('Please select a valid image or video file')
         return
       }
 
-      // Validate file size (max 50MB)
+      
       if (file.size > 50 * 1024 * 1024) {
         errorToast('File size should be less than 50MB')
         return
@@ -47,7 +47,7 @@ function CreateAsset() {
         file
       }))
 
-      // Create preview
+      
       const reader = new FileReader()
       reader.onloadend = () => {
         setPreview(reader.result)

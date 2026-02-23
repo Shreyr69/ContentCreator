@@ -32,4 +32,4 @@ const assetSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Asset", assetSchema);
+export default mongoose.models.Asset || mongoose.model("Asset", assetSchema);

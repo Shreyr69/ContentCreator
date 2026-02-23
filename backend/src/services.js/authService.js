@@ -62,10 +62,24 @@ export const verifySignupOtpService = async ({
 
   await OTP.deleteOne({ email });
 
+  // Generate token for the new user
+  const token = jwt.sign(
+    {
+      id: user._id,
+      role: user.role
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" }
+  );
+
   return {
-    id: user._id,
-    name: user.name,
-    email: user.email
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
   };
 };
 
