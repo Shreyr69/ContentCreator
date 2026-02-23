@@ -1,13 +1,11 @@
 import { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AuthContext } from '../contexts/AuthContext'
 import { ThemeContext } from '../components/ThemeContext'
 import Navbar from '../components/Navbar'
-import { getPublicAssets } from '../api/assetAPI'
+import { getMyAssets } from '../api/assetAPI'
 import { errorToast } from '../utils/toast'
 
-function Dashboard() {
-  const { user } = useContext(AuthContext)
+function MyAssets() {
   const { theme } = useContext(ThemeContext)
   const navigate = useNavigate()
 
@@ -15,32 +13,24 @@ function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [search, setSearch] = useState('')
 
   const isDark = theme === 'dark'
 
   useEffect(() => {
-    fetchAssets()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, search])
+    fetchMyAssets()
+  }, [page])
 
-  const fetchAssets = async () => {
+  const fetchMyAssets = async () => {
     setLoading(true)
     try {
-      const response = await getPublicAssets({ page, limit: 9, search })
+      const response = await getMyAssets({ page, limit: 9 })
       setAssets(response.assets)
       setTotalPages(response.totalPages)
     } catch (error) {
-      errorToast(error.response?.data?.message || 'Failed to fetch assets')
+      errorToast(error.response?.data?.message || 'Failed to fetch your assets')
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    setPage(1)
-    fetchAssets()
   }
 
   return (
@@ -48,62 +38,44 @@ function Dashboard() {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
+        {/* Header Section */}
         <div className={`rounded-lg shadow-lg p-6 mb-8 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
-          <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Welcome, {user?.name}! 👋
-          </h2>
-          <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
-            Explore assets uploaded by creators from around the world
-          </p>
-        </div>
-
-        {/* Search Bar */}
-        <div className="mb-6">
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search assets..."
-              className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                isDark
-                  ? 'bg-gray-800 border-gray-700 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              }`}
-            />
-            <button
-              type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Search
-            </button>
-          </form>
-        </div>
-
-        {/* Assets Section */}
-        <div className={`rounded-lg shadow-lg p-6 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
-          <div className="flex justify-between items-center mb-6">
-            <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              Public Assets
-            </h3>
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                My Assets
+              </h2>
+              <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
+                Manage all the assets you've uploaded
+              </p>
+            </div>
             <button
               onClick={() => navigate('/create-asset')}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              + Create Asset
+              + Create New Asset
             </button>
           </div>
+        </div>
 
+        {/* Assets Grid */}
+        <div className={`rounded-lg shadow-lg p-6 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
           ) : assets.length === 0 ? (
             <div className="text-center py-12">
-              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                No assets found. Be the first to upload!
+              <div className="text-6xl mb-4">📁</div>
+              <p className={`text-lg mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                You haven't uploaded any assets yet
               </p>
+              <button
+                onClick={() => navigate('/create-asset')}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Upload Your First Asset
+              </button>
             </div>
           ) : (
             <>
@@ -131,22 +103,31 @@ function Dashboard() {
                       )}
                     </div>
                     <div className="p-4">
-                      <h4 className={`font-bold text-lg mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                        {asset.title}
-                      </h4>
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                          {asset.title}
+                        </h4>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          asset.visibility === 'public' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {asset.visibility}
+                        </span>
+                      </div>
                       {asset.description && (
-                        <p className={`text-sm mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                        <p className={`text-sm mb-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                           {asset.description}
                         </p>
                       )}
-                      <div className="flex items-center justify-between mt-3">
-                        <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                          By: {asset.owner?.name || 'Unknown'}
+                      <div className="flex items-center justify-between">
+                        <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {new Date(asset.createdAt).toLocaleDateString()}
                         </span>
                         <span className={`text-xs px-2 py-1 rounded ${
                           asset.type === 'video' 
                             ? 'bg-purple-100 text-purple-800' 
-                            : 'bg-green-100 text-green-800'
+                            : 'bg-blue-100 text-blue-800'
                         }`}>
                           {asset.type}
                         </span>
@@ -194,4 +175,4 @@ function Dashboard() {
   )
 }
 
-export default Dashboard
+export default MyAssets

@@ -27,9 +27,6 @@ export const getPublicAssets = async (req, res) => {
   }
 };
 
-/* =========================
-   GET MY ASSETS
-========================= */
 
 export const getMyAssets = async (req, res) => {
   try {

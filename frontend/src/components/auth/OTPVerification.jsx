@@ -2,7 +2,8 @@ import { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 import { ThemeContext } from '../ThemeContext'
-import { verifySignupOtp } from '../../services/api'
+import { verifyOtp } from '../../api/authAPI'
+import { successToast, errorToast } from '../../utils/toast'
 
 function OTPVerification({ email }) {
   const { login } = useContext(AuthContext)
@@ -46,20 +47,23 @@ function OTPVerification({ email }) {
     setLoading(true)
 
     try {
-      const response = await verifySignupOtp(
+      const response = await verifyOtp({
         email,
-        formData.otp,
-        formData.name,
-        formData.password,
-        formData.role
-      )
+        otp: formData.otp,
+        name: formData.name,
+        password: formData.password,
+        role: formData.role
+      })
       
       if (response.success) {
         login(response.user)
+        successToast('Signup successful! Welcome aboard!')
         navigate('/dashboard')
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Verification failed. Please check your OTP.')
+      const message = err.response?.data?.message || 'Verification failed. Please check your OTP.'
+      setError(message)
+      errorToast(message)
     } finally {
       setLoading(false)
     }

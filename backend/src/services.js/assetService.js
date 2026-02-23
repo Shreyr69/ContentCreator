@@ -7,11 +7,10 @@ export const createAssetService = async (file, body, userId) => {
     throw new Error("File is required");
   }
 
-  // Upload to Cloudinary
   const uploadResult = await new Promise((resolve, reject) => {
     cloudinary.uploader.upload_stream(
       {
-        resource_type: "auto" // detects image or video
+        resource_type: "auto" 
       },
       (error, result) => {
         if (error) reject(error);
@@ -23,7 +22,7 @@ export const createAssetService = async (file, body, userId) => {
   const asset = await Asset.create({
     title: body.title,
     description: body.description,
-    type: uploadResult.resource_type, // image or video
+    type: uploadResult.resource_type, 
     url: uploadResult.secure_url,
     visibility: body.visibility || "public",
     owner: userId
@@ -32,11 +31,6 @@ export const createAssetService = async (file, body, userId) => {
   return asset;
 };
 
-
-
-/* =========================
-   GET PUBLIC ASSETS
-========================= */
 
 export const getPublicAssetsService = async (query) => {
 
@@ -67,10 +61,6 @@ export const getPublicAssetsService = async (query) => {
   };
 };
 
-
-/* =========================
-   GET USER ASSETS
-========================= */
 
 export const getMyAssetsService = async (userId, query) => {
 

@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react'
 import { AuthContext } from './AuthContext'
-import { getCurrentUser, logoutUser } from '../services/api'
+import { getCurrentUser, logoutUser } from '../api/authAPI'
 
 function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
- 
   useEffect(() => {
     checkAuth()
   }, [])
 
   const checkAuth = async () => {
     try {
-      const userData = await getCurrentUser()
-      if (userData) {
-        setUser(userData)
+      const response = await getCurrentUser()
+      if (response?.user) {
+        setUser(response.user)
         setIsAuthenticated(true)
       }
     } catch {

@@ -2,7 +2,8 @@ import { useState, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 import { ThemeContext } from '../ThemeContext'
-import { loginUser } from '../../services/api'
+import { loginUser } from '../../api/authAPI'
+import { successToast, errorToast } from '../../utils/toast'
 
 function Login() {
   const { login } = useContext(AuthContext)
@@ -30,14 +31,17 @@ function Login() {
     setLoading(true)
 
     try {
-      const response = await loginUser(formData.email, formData.password)
+      const response = await loginUser({ email: formData.email, password: formData.password })
       
       if (response.success) {
         login(response.user)
+        successToast('Login successful!')
         navigate('/dashboard')
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.')
+      const message = err.response?.data?.message || 'Login failed. Please try again.'
+      setError(message)
+      errorToast(message)
     } finally {
       setLoading(false)
     }

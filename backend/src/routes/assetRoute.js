@@ -5,6 +5,6 @@ import { createAsset, getMyAssets, getPublicAssets } from "../controllers/assetC
 const router = express.Router();
 
 router.post("/", authMiddleware, upload.single("file"), createAsset);
-router.get("/", getPublicAssets);        // Public
+router.get("/", getPublicAssets);        
 router.get("/my", authMiddleware, getMyAssets);
 export default router;

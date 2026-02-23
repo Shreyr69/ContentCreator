@@ -1,7 +1,8 @@
 import { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { ThemeContext } from '../ThemeContext'
-import { initiateSignup } from '../../services/api'
+import { sendOtp } from '../../api/authAPI'
+import { successToast, errorToast } from '../../utils/toast'
 import OTPVerification from './OTPVerification'
 
 function Signup() {
@@ -18,13 +19,16 @@ function Signup() {
     setLoading(true)
 
     try {
-      const response = await initiateSignup(email)
+      const response = await sendOtp({ email })
       
       if (response.success) {
+        successToast('OTP sent to your email!')
         setStep(2) 
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send OTP. Please try again.')
+      const message = err.response?.data?.message || 'Failed to send OTP. Please try again.'
+      setError(message)
+      errorToast(message)
     } finally {
       setLoading(false)
     }
