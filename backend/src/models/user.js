@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["ADMIN", "EDITOR", "VIEWER"],
       default: "VIEWER"
+    },
+    tokens: {
+      type: Number,
+      default: 0
     }
   },
   { timestamps: true }

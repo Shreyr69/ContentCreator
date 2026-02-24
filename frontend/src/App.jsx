@@ -13,6 +13,7 @@ import CreateAsset from './pages/CreateAsset'
 import MyAssets from './pages/MyAssets'
 import Profile from './pages/Profile'
 import Chat from './pages/Chat'
+import Subscription from './pages/Subscription'
 
 function App() {
   return (
@@ -85,6 +86,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Chat />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/subscription" 
+                element={
+                  <ProtectedRoute>
+                    <Subscription />
                   </ProtectedRoute>
                 } 
               />
