@@ -1,7 +1,9 @@
 import { Server } from 'socket.io';
+import { createAdapter } from '@socket.io/redis-adapter';
 import jwt from 'jsonwebtoken';
 import Message from '../models/message.js';
 import Conversation from '../models/conversation.js';
+import { pubClient, subClient } from '../config/redis.js';
 
 
 const connectedUsers = new Map();
@@ -9,10 +11,14 @@ const connectedUsers = new Map();
 export const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL,
+      origin: [process.env.CLIENT_URL, 'http://localhost:7153'],
       credentials: true
     }
   });
+
+
+  io.adapter(createAdapter(pubClient, subClient));
+  console.log('Socket.IO using Redis adapter');
 
   
   io.use((socket, next) => {

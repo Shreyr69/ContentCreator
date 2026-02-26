@@ -15,7 +15,7 @@ function OTPVerification({ email }) {
     name: '',
     password: '',
     confirmPassword: '',
-    role: 'user'
+    role: 'VIEWER'
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -184,8 +184,9 @@ function OTPVerification({ email }) {
                   : 'bg-white border-gray-300 text-gray-900'
               }`}
             >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
+              <option value="VIEWER">Viewer</option>
+              <option value="EDITOR">Editor</option>
+              <option value="ADMIN">Admin</option>
             </select>
           </div>
 

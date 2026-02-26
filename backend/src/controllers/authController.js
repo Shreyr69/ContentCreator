@@ -51,7 +51,7 @@ export const verifySignupOtp = async (req, res) => {
       role
     });
 
-    // Set token cookie
+
     res.cookie("token", result.token, {
       httpOnly: true,
       secure: false, 
@@ -63,7 +63,7 @@ export const verifySignupOtp = async (req, res) => {
       success: true,
       message: "User signed up successfully",
       user: result.user,
-      token: result.token  // Send token in response for localStorage
+      token: result.token  
     });
   } catch (error) {
     res.status(400).json({
@@ -91,7 +91,7 @@ export const login = async (req, res) => {
       success: true,
       message: "Login successful",
       user: result.user,
-      token: result.token  // Send token in response for localStorage
+      token: result.token 
     });
   } catch (error) {
     res.status(401).json({
@@ -103,7 +103,7 @@ export const login = async (req, res) => {
 
 export const getCurrentUser = async (req, res) => {
   try {
-    // Fetch full user data from database
+    
     const user = await User.findById(req.user.id).select('-password');
     
     if (!user) {
@@ -113,7 +113,7 @@ export const getCurrentUser = async (req, res) => {
       });
     }
 
-    // Generate a fresh token
+    
     const token = jwt.sign(
       {
         id: user._id,

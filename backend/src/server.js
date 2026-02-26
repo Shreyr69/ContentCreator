@@ -9,10 +9,13 @@ import assetRoutes from "./routes/assetRoute.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import { initializeSocket } from "./socket/socket.js";
+import { connectRedis } from "./config/redis.js";
 
 dotenv.config();
 
 connectDB();
+
+await connectRedis();
 
 const app = express();
 const httpServer = createServer(app);
@@ -23,8 +26,16 @@ const io = initializeSocket(httpServer);
 app.use(express.json());
 app.use(cookieParser());
 
+const allowedOrigins = [process.env.CLIENT_URL, 'http://localhost:7153'];
+
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 

@@ -1,10 +1,10 @@
 import crypto from 'crypto';
 import razorpay from '../config/razorpay.js';
 import Plan from '../models/plan.js';
-import Order from '../config/order.js';
+import Order from '../models/order.js';
 import User from '../models/user.js';
 
-// Get all active plans
+
 export const getPlans = async (req, res) => {
     try {
         const plans = await Plan.find({ isActive: true }).sort({ price: 1 });
@@ -15,7 +15,7 @@ export const getPlans = async (req, res) => {
     }
 };
 
-// Create Razorpay order
+
 export const createOrder = async (req, res) => {
     try {
         const { planId } = req.body;
@@ -75,7 +75,13 @@ export const verifyPayment = async (req, res) => {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
         const userId = req.user.id;
 
-        
+        console.log('verifyPayment called:', { razorpay_order_id, razorpay_payment_id, userId });
+
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return res.status(400).json({ success: false, message: 'Missing payment details' });
+        }
+
+       
         const body = razorpay_order_id + '|' + razorpay_payment_id;
         const expectedSignature = crypto
             .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
@@ -83,6 +89,7 @@ export const verifyPayment = async (req, res) => {
             .digest('hex');
 
         const isValid = expectedSignature === razorpay_signature;
+        console.log('Signature valid:', isValid);
 
         if (!isValid) {
             return res.status(400).json({ success: false, message: 'Invalid payment signature' });
@@ -90,19 +97,28 @@ export const verifyPayment = async (req, res) => {
 
         
         const order = await Order.findOne({ razorpay_order_id });
+        console.log('Order found:', order);
+
         if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
+            return res.status(404).json({ success: false, message: 'Order not found. Please contact support.' });
         }
 
+        
         order.razorpay_payment_id = razorpay_payment_id;
         order.razorpay_signature = razorpay_signature;
         order.status = 'paid';
         await order.save();
+        console.log('Order updated to paid');
 
         
-        const user = await User.findById(userId);
-        user.tokens = (user.tokens || 0) + order.tokens;
+        const user = await User.findById(order.user);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        user.tokens = (user.tokens || 0) + (order.tokens || 0);
         await user.save();
+        console.log('User tokens updated to:', user.tokens);
 
         res.json({
             success: true,
@@ -110,8 +126,8 @@ export const verifyPayment = async (req, res) => {
             tokens: user.tokens
         });
     } catch (error) {
-        console.error('Error verifying payment:', error);
-        res.status(500).json({ success: false, message: 'Payment verification failed' });
+        console.error('Error verifying payment - full error:', error);
+        res.status(500).json({ success: false, message: 'Payment verification failed', error: error.message });
     }
 };
 
